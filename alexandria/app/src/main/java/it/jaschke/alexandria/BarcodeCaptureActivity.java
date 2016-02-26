@@ -72,6 +72,8 @@ public class BarcodeCaptureActivity extends AppCompatActivity{
         super.onCreate(icicle);
         setContentView(R.layout.barcode_capture);
 
+        Toast.makeText(BarcodeCaptureActivity.this, R.string.tap_screen_to_get_barcode, Toast.LENGTH_LONG).show();
+
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
 
@@ -335,6 +337,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity{
             }
         }
         else {
+            Toast.makeText(BarcodeCaptureActivity.this, R.string.no_barcode_detected, Toast.LENGTH_SHORT).show();
             Log.d(TAG,"no barcode detected");
         }
         return barcode != null;
