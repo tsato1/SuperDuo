@@ -1,12 +1,16 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -40,6 +45,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
 
+    public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
+    public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
+
     public AddBook(){
     }
 
@@ -56,6 +64,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
         ean = (EditText) rootView.findViewById(R.id.ean);
+
+        IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BReceiver,filter);
+
 
         ean.addTextChangedListener(new TextWatcher() {
             @Override
@@ -83,7 +95,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent);
+                getActivity().startService(bookIntent); // for result broad cast?
                 AddBook.this.restartLoader();
             }
         });
@@ -147,6 +159,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     ean.setText(barcode.displayValue);
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                 } else {
+                    clearFields();
                     Log.d(TAG, "No barcode captured, intent data is null");
                 }
             } else {
@@ -235,4 +248,27 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         super.onAttach(activity);
         activity.setTitle(R.string.scan);
     }
+
+    /*** Get the result from BarcodeCaptureActivity ***/
+
+    private BroadcastReceiver BReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getStringExtra(MESSAGE_KEY)!=null) {
+                clearFields();
+                Toast.makeText(getActivity(), intent.getStringExtra(MESSAGE_KEY), Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
+    public void onResume(){
+        super.onResume();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BReceiver, new IntentFilter("message"));
+    }
+
+    public void onPause (){
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(BReceiver);
+    }
+
 }

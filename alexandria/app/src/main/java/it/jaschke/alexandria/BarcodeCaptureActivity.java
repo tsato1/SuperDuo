@@ -72,8 +72,6 @@ public class BarcodeCaptureActivity extends AppCompatActivity{
         super.onCreate(icicle);
         setContentView(R.layout.barcode_capture);
 
-        Toast.makeText(BarcodeCaptureActivity.this, R.string.tap_screen_to_get_barcode, Toast.LENGTH_LONG).show();
-
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay<BarcodeGraphic>) findViewById(R.id.graphicOverlay);
 
@@ -94,7 +92,7 @@ public class BarcodeCaptureActivity extends AppCompatActivity{
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
         Snackbar.make(mGraphicOverlay, "Tap to capture. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG)
+                Snackbar.LENGTH_INDEFINITE)
                 .show();
     }
 
@@ -327,6 +325,10 @@ public class BarcodeCaptureActivity extends AppCompatActivity{
         if (graphic != null) {
             barcode = graphic.getBarcode();
             if (barcode != null) {
+                Log.d("Barcode", "0:"+barcode.cornerPoints[0] +
+                        ",1:" + barcode.cornerPoints[1] +
+                        ",2:" + barcode.cornerPoints[2] +
+                        ",3:" + barcode.cornerPoints[3]);
                 Intent data = new Intent();
                 data.putExtra(BarcodeObject, barcode);
                 setResult(CommonStatusCodes.SUCCESS, data);

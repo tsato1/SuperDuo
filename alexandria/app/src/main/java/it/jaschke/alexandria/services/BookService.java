@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -133,6 +134,10 @@ public class BookService extends IntentService {
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
+                Intent messageIntent = new Intent(AddBook.MESSAGE_EVENT);
+                messageIntent.putExtra(AddBook.MESSAGE_KEY,getResources().getString(R.string.no_connection_detected));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                return;
             }
             if (reader != null) {
                 try {
@@ -222,7 +227,7 @@ public class BookService extends IntentService {
     }
 
     private void writeBackCategories(String ean, JSONArray jsonArray) throws JSONException {
-        ContentValues values= new ContentValues();
+        ContentValues values = new ContentValues();
         for (int i = 0; i < jsonArray.length(); i++) {
             values.put(AlexandriaContract.CategoryEntry._ID, ean);
             values.put(AlexandriaContract.CategoryEntry.CATEGORY, jsonArray.getString(i));
