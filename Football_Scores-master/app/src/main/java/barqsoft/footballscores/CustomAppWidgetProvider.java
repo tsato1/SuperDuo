@@ -6,8 +6,15 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import barqsoft.footballscores.service.WidgetService;
@@ -49,7 +56,6 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
     private RemoteViews initViews(Context context, AppWidgetManager widgetManager, int widgetId) {
-
         RemoteViews mView = new RemoteViews(context.getPackageName(), R.layout.appwidget);
 
         Intent intent = new Intent(context, WidgetService.class);

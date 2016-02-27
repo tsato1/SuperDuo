@@ -9,15 +9,25 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService.RemoteViewsFactory;
+import android.widget.TextView;
 
 @SuppressLint("NewApi")
 public class WidgetDataProvider implements RemoteViewsFactory {
 
-    List mCollections = new ArrayList();
+    List<WidgetItem> mCollections = new ArrayList();
 
     Context mContext = null;
 
@@ -42,14 +52,23 @@ public class WidgetDataProvider implements RemoteViewsFactory {
 
     @Override
     public RemoteViews getViewAt(int position) {
-        RemoteViews mView = new RemoteViews(mContext.getPackageName(), android.R.layout.simple_list_item_1);
-        mView.setTextViewText(android.R.id.text1, (CharSequence) mCollections.get(position));
-        mView.setTextColor(android.R.id.text1, Color.BLACK);
+        RemoteViews mView = new RemoteViews(mContext.getPackageName(), R.layout.scores_list_item);
+
+        mView.setTextViewText(R.id.home_name, mCollections.get(position).home_name);
+        mView.setTextColor(R.id.home_name, Color.BLACK);
+        mView.setTextViewText(R.id.score_textview, mCollections.get(position).score);
+        mView.setTextColor(R.id.score_textview, Color.BLACK);
+        mView.setTextViewText(R.id.data_textview, mCollections.get(position).date);
+        mView.setTextColor(R.id.data_textview, Color.BLACK);
+        mView.setTextViewText(R.id.away_name, mCollections.get(position).away_name);
+        mView.setTextColor(R.id.away_name, Color.BLACK);
+        mView.setImageViewResource(R.id.home_crest, Utilies.getTeamCrestByTeamName(mCollections.get(position).home_name));
+        mView.setImageViewResource(R.id.away_crest, Utilies.getTeamCrestByTeamName(mCollections.get(position).away_name));
 
         final Intent fillInIntent = new Intent();
         fillInIntent.setAction(CustomAppWidgetProvider.ACTION_TOAST);
         final Bundle bundle = new Bundle();
-        bundle.putString(CustomAppWidgetProvider.EXTRA_STRING, (String) mCollections.get(position));
+        bundle.putString(CustomAppWidgetProvider.EXTRA_STRING, "list pushed");
         fillInIntent.putExtras(bundle);
         mView.setOnClickFillInIntent(android.R.id.text1, fillInIntent);
 
@@ -68,18 +87,50 @@ public class WidgetDataProvider implements RemoteViewsFactory {
 
     @Override
     public void onCreate() {
-        initData();
+        Thread thread = new Thread() {
+            public void run() {
+                initData();
+            }
+        };
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+        }
     }
 
     @Override
     public void onDataSetChanged() {
-        initData();
+        Thread thread = new Thread() {
+            public void run() {
+                initData();
+            }
+        };
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+        }
     }
 
     private void initData() {
-        mCollections.clear();
-        for (int i = 1; i <= 10; i++) {
-            mCollections.add("ListView item " + i);
+        if (mContext != null) {
+            mCollections.clear();
+
+            Cursor cursor = mContext.getContentResolver().query(DatabaseContract.BASE_CONTENT_URI, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                do {
+                    WidgetItem mWidgetItem = new WidgetItem();
+                    mWidgetItem.home_name = cursor.getString(scoresAdapter.COL_HOME);
+                    mWidgetItem.away_name = cursor.getString(scoresAdapter.COL_AWAY);
+                    mWidgetItem.date = cursor.getString(scoresAdapter.COL_MATCHTIME);
+                    mWidgetItem.score = Utilies.getScores(cursor.getInt(scoresAdapter.COL_HOME_GOALS), cursor.getInt(scoresAdapter.COL_AWAY_GOALS));
+                    mWidgetItem.match_id = String.valueOf(cursor.getDouble(scoresAdapter.COL_ID));
+
+                    mCollections.add(mWidgetItem);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
     }
 
