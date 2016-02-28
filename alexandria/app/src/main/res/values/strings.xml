@@ -29,9 +29,10 @@
     <string name="low_storage_error">Barcode detector dependencies cannot be downloaded due to low device storage</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="no_barcode_detected">No Barcode Detected</string>
-    <string name="no_connection_detected">Please connect to network</string>
+    <string name="connect_to_internet">Try Again with Better Internet Connection</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="about_text">This application gets book information from a Google API. All titles, cover images, and author information come from there.
-    The original version of this app was built by Sascha Jaschke, and a modified version is given to students in the Udacity Android Nanodegree program. </string>
+    <string name="about_text">This application gets book information from Google Book Database.
+        You can see all titles, cover images, and author information.
+        You can scan or type in the barcode to fetch the book data. Please try in the good internet environment.
+        The original version of this app was built by Sascha Jaschke, and a modified version is given to students in the Udacity Android Nanodegree program. </string>
 </resources>

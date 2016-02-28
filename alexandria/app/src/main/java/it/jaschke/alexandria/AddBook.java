@@ -68,7 +68,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(BReceiver,filter);
 
-
         ean.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -95,7 +94,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
                 bookIntent.putExtra(BookService.EAN, ean);
                 bookIntent.setAction(BookService.FETCH_BOOK);
-                getActivity().startService(bookIntent); // for result broad cast?
+                getActivity().startService(bookIntent);
                 AddBook.this.restartLoader();
             }
         });

@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 import it.jaschke.alexandria.AddBook;
 import it.jaschke.alexandria.MainActivity;
@@ -112,6 +114,8 @@ public class BookService extends IntentService {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
+            Log.d("Response Code", String.valueOf(urlConnection.getResponseCode()));
+
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -119,6 +123,7 @@ public class BookService extends IntentService {
             }
 
             reader = new BufferedReader(new InputStreamReader(inputStream));
+
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line);
@@ -128,17 +133,15 @@ public class BookService extends IntentService {
             if (buffer.length() == 0) {
                 return;
             }
+
             bookJsonString = buffer.toString();
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Error ", e);
+            e.printStackTrace();
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
-                Intent messageIntent = new Intent(AddBook.MESSAGE_EVENT);
-                messageIntent.putExtra(AddBook.MESSAGE_KEY,getResources().getString(R.string.no_connection_detected));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
-                return;
             }
+
             if (reader != null) {
                 try {
                     reader.close();
@@ -162,6 +165,12 @@ public class BookService extends IntentService {
         final String IMG_URL = "thumbnail";
 
         try {
+            if (bookJsonString == null) {
+                Intent messageIntent = new Intent(AddBook.MESSAGE_EVENT);
+                messageIntent.putExtra(AddBook.MESSAGE_KEY, getResources().getString(R.string.connect_to_internet));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                return;
+            }
             JSONObject bookJson = new JSONObject(bookJsonString);
             JSONArray bookArray;
             if(bookJson.has(ITEMS)){
