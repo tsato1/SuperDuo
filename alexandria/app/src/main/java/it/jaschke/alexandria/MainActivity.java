@@ -125,7 +125,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (resultCode) {
-            case RESULT_SETTINGS: //todo should show the user-specified page
+            case RESULT_SETTINGS:
                 SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
                 Log.d(TAG, "onActivityResult" + sharedPrefs.getString("pref_startFragment", "NULL"));
                 break;

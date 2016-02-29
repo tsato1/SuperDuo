@@ -22,6 +22,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 
 import it.jaschke.alexandria.AddBook;
+import it.jaschke.alexandria.ListOfBooks;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -65,7 +66,11 @@ public class BookService extends IntentService {
      */
     private void deleteBook(String ean) {
         if(ean!=null) {
-            getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
+            if (getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null) != 0) {
+                Intent messageIntent = new Intent(AddBook.MESSAGE_EVENT);
+                messageIntent.putExtra(ListOfBooks.MESSAGE_KEY, getResources().getString(R.string.delete_successful));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+            }
         }
     }
 
