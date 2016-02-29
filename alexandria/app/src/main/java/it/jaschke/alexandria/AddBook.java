@@ -194,7 +194,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
         /****
          * Aiming for Extra Credit
-         * Taking care of the case of (authorArr == null)
+         * Taking the case of (authors == null) into account
          */
         String[] authorsArr = {};
         if (authors != null) authorsArr = authors.split(",");
