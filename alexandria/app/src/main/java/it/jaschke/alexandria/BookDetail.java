@@ -7,11 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.support.v7.widget.Toolbar;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +31,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     private String ean;
     private String bookTitle;
     private ShareActionProvider shareActionProvider;
+    private boolean mHasPreparedShareIntent;
 
     public BookDetail(){
     }
@@ -43,6 +40,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mHasPreparedShareIntent = false;
     }
 
 
@@ -91,11 +89,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         ((TextView) rootView.findViewById(R.id.fullBookTitle)).setText(bookTitle);
 
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+bookTitle);
-        shareActionProvider.setShareIntent(shareIntent);
+        if (!mHasPreparedShareIntent) prepareShareIntent();
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         ((TextView) rootView.findViewById(R.id.fullBookSubTitle)).setText(bookSubTitle);
@@ -103,9 +97,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         String desc = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.DESC));
         ((TextView) rootView.findViewById(R.id.fullBookDesc)).setText(desc);
 
-        String authors = "";
-        authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
+        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+        String[] authorsArr = {""};
+        if (authors != null) authorsArr = authors.split(",");
+
         ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
         ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
@@ -146,6 +141,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        if (!mHasPreparedShareIntent) prepareShareIntent();
     }
 
     @Override
@@ -157,5 +153,14 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         }
 
         return super.onOptionsItemSelected(menuItem);
+    }
+
+    private void prepareShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+bookTitle);
+        shareActionProvider.setShareIntent(shareIntent);
+        mHasPreparedShareIntent = true;
     }
 }
