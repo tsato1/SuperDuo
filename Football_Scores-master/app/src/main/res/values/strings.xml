@@ -11,6 +11,7 @@
     <string name="champions_league">UEFA Champions League</string>
     <string name="bundesliga" translatable="false">Bundesliga</string>
     <string name="premierleague">Premier League</string>
+    <string name="not_known_league">"Not known League Please report"</string>
     <string name="primeradivison" translatable="false">Primera Division</string>
     <string name="seriaa" translatable="false">Serie A</string>
     <string name="matchday_text">Match day</string>
